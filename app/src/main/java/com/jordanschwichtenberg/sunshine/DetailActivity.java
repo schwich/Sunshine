@@ -67,7 +67,7 @@ public class DetailActivity extends ActionBarActivity {
         private String mForecastStr;
 
         public DetailFragment() {
-            hasOptionsMenu();
+            setHasOptionsMenu(true);
         }
 
         @Override
@@ -98,11 +98,27 @@ public class DetailActivity extends ActionBarActivity {
             // Attach an intent to this ShareActionProvider. You can update this at any time,
             // like when the user selects a new piece of data they might like to share.
             if (mShareActionProvider != null) {
+                Log.v(LOG_TAG, "DOES IT GET HER?");
                 mShareActionProvider.setShareIntent(createShareForecastIntent());
             } else {
-                Log.d(LOG_TAG, "Share Action Provider is null?");
+                Log.e(LOG_TAG, "Share Action Provider is null?");
+
+                mShareActionProvider = new ShareActionProvider(getActivity());
+                MenuItemCompat.setActionProvider(menuItem, mShareActionProvider);
             }
             super.onCreateOptionsMenu(menu, inflater);
+        }
+
+        @Override
+        public boolean onOptionsItemSelected(MenuItem item) {
+            int id = item.getItemId();
+
+            //noinspection SimplifiableIfStatement
+            if (id == R.id.action_share) {
+                startActivity(createShareForecastIntent());
+                return true;
+            }
+            return super.onOptionsItemSelected(item);
         }
 
         private Intent createShareForecastIntent() {

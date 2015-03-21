@@ -35,6 +35,9 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * A placeholder fragment containing a simple view.
@@ -131,8 +134,13 @@ public class ForecastFragment extends Fragment {
         @Override
         protected void onPostExecute(String[] result) {
             if (result != null) {
+                // sometimes the api responds with only partial information
+                // so strip out all of the null entries so the arrayadapter
+                // won't crash with NullPointerException
+                List<String> forecastList = new ArrayList<>(Arrays.asList(result));
+                forecastList.removeAll(Collections.singleton(null));
                 mForecastAdapter.clear();
-                for (String dayForecastStr : result) {
+                for (String dayForecastStr : forecastList) {
                     mForecastAdapter.add(dayForecastStr);
                 }
             }
@@ -256,14 +264,14 @@ public class ForecastFragment extends Fragment {
                 final String FORMAT_PARAM = "mode";
                 final String UNITS_PARAM = "units";
                 final String DAYS_PARAM = "cnt";
-                final String ID_PARAM = "id";
+                final String API_KEY_PARAM = "id";
 
                 Uri builtUri = Uri.parse(FORECAST_BASE_URL).buildUpon()
                         .appendQueryParameter(QUERY_PARAM, params[0])
                         .appendQueryParameter(FORMAT_PARAM, format)
                         .appendQueryParameter(UNITS_PARAM, units)
                         .appendQueryParameter(DAYS_PARAM, Integer.toString(numDays))
-                        .appendQueryParameter(ID_PARAM, "e4ee454f03f54d8f8e9b5027ade8b9e5")
+                        .appendQueryParameter(API_KEY_PARAM, "e4ee454f03f54d8f8e9b5027ade8b9e5")
                         .build();
 
 
@@ -306,6 +314,7 @@ public class ForecastFragment extends Fragment {
                 Log.e(LOG_TAG, "Error ", e);
                 // If the code didn't successfully get the weather data, there's no point in attemping
                 // to parse it.
+                Log.v(LOG_TAG, urlConnection.getErrorStream().toString());
                 return null;
             } finally {
                 if (urlConnection != null) {
