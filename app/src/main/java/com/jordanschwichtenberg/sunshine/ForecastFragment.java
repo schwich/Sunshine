@@ -4,7 +4,6 @@ package com.jordanschwichtenberg.sunshine;
  * Created by Jordan on 3/15/2015.
  */
 
-import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -30,6 +29,10 @@ import com.jordanschwichtenberg.sunshine.data.WeatherContract;
 public class ForecastFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
     private ForecastAdapter mForecastAdapter;
+
+    public interface Callback {
+        public void onItemSelected(Uri dateUri);
+    }
 
     private static final int FORECAST_LOADER = 0;
 
@@ -120,12 +123,12 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
                 if (cursor != null) {
                     String locationSetting = Utility.getPreferredLocation(getActivity());
 
-                    Intent intent = new Intent(getActivity(), DetailActivity.class)
-                            .setData(WeatherContract.WeatherEntry.buildWeatherLocationWithDate(
+                    ((Callback) getActivity())
+                        .onItemSelected(WeatherContract.WeatherEntry.buildWeatherLocationWithDate(
                                     locationSetting, cursor.getLong(COL_WEATHER_DATE)
                             ));
 
-                    startActivity(intent);
+
                 }
             }
         });
