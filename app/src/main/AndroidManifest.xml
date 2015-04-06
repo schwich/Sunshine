@@ -36,6 +36,10 @@
                     android:value=".MainActivity" />
         </activity>
 
+        <service android:name=".service.SunshineService" />
+
+        <receiver android:name=".service.SunshineService$AlarmReceiver" />
+
         <provider
             android:authorities="com.jordanschwichtenberg.sunshine"
             android:name=".data.WeatherProvider" />

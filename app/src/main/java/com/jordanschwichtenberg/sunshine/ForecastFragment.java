@@ -4,6 +4,10 @@ package com.jordanschwichtenberg.sunshine;
  * Created by Jordan on 3/15/2015.
  */
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
+import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -22,6 +26,7 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 
 import com.jordanschwichtenberg.sunshine.data.WeatherContract;
+import com.jordanschwichtenberg.sunshine.service.SunshineService;
 
 /**
  * A placeholder fragment containing a simple view.
@@ -203,10 +208,16 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
     }
 
     private void updateWeather() {
-        FetchWeatherTask weatherTask = new FetchWeatherTask(getActivity());
-        String location = Utility.getPreferredLocation(getActivity());
-        weatherTask.execute(location);
+        Intent alarmIntent = new Intent(getActivity(), SunshineService.AlarmReceiver.class);
+        alarmIntent.putExtra(SunshineService.LOCATION_QUERY_EXTRA, Utility.getPreferredLocation(getActivity()));
 
+        // Wrap in a pending intent which fires only once.
+        PendingIntent pi = PendingIntent.getBroadcast(getActivity(), 0, alarmIntent, PendingIntent.FLAG_ONE_SHOT);
+
+        AlarmManager am = (AlarmManager)getActivity().getSystemService(Context.ALARM_SERVICE);
+
+        // Set the AlarmManger to wake up the system.
+        am.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + 5000, pi);
     }
 
 
