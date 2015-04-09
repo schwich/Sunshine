@@ -4,6 +4,7 @@ package com.jordanschwichtenberg.sunshine;
  * Created by Jordan on 3/15/2015.
  */
 
+import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -194,9 +195,8 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_refresh) {
-            updateWeather();
+        if (id == R.id.action_map) {
+            openPreferredLocationInMap();
             return true;
         }
 
@@ -205,6 +205,27 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
 
     private void updateWeather() {
         SunshineSyncAdapter.syncImmediately(getActivity());
+    }
+
+    private void openPreferredLocationInMap() {
+        if (mForecastAdapter != null) {
+            Cursor c = mForecastAdapter.getCursor();
+            if (c != null) {
+                c.moveToPosition(0);
+                String posLat = c.getString(COL_COORD_LAT);
+                String posLong = c.getString(COL_COORD_LONG);
+                Uri geolocation = Uri.parse("geo:" + posLat + ", " + posLong);
+
+                Intent intent = new Intent(Intent.ACTION_VIEW);
+                intent.setData(geolocation);
+
+                if (intent.resolveActivity(getActivity().getPackageManager()) != null) {
+                    startActivity(intent);
+                } else {
+
+                }
+            }
+        }
     }
 
 
